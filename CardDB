@@ -1,0 +1,122 @@
+package banking;
+
+import org.sqlite.SQLiteDataSource;
+
+import java.sql.*;
+
+public class CardDB {
+    private String url = "jdbc:sqlite:";
+
+    CardDB(String input){
+        url = url + input;
+        createNewDataBase();
+    }
+
+    void createNewDataBase(){
+        try(Connection con = DriverManager.getConnection(url)){
+            try (Statement statement = con.createStatement()) {
+                statement.execute("CREATE TABLE IF NOT EXISTS card (" +
+                        "id INTEGER PRIMARY KEY," +
+                        "number TEXT," +
+                        "pin TEXT," +
+                        "balance INTEGER DEFAULT 0)");
+            } catch (SQLException e){
+                e.printStackTrace();
+            }
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+    }
+
+    void insetNewCard(String number, String pin){
+        try(Connection con = DriverManager.getConnection(url)){
+            try(Statement statement = con.createStatement()) {
+                statement.executeUpdate("INSERT INTO card (number, pin)" +
+                        "VALUES(" + number + "," + pin + ")");
+            } catch (SQLException e){
+                e.printStackTrace();
+            }
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+    }
+
+    String printData(String data) {
+        try(Connection con = DriverManager.getConnection(url)) {
+            try (Statement statement = con.createStatement()){
+                try(ResultSet card = statement.executeQuery("SELECT * FROM card")) {
+                    switch (data){
+                        case "number":
+                            return card.getString("number");
+                        case  "pin":
+                            return card.getString("pin");
+                        case "balance":
+                            return String.valueOf(card.getInt("balance"));
+                    }
+                } catch (SQLException e){
+                    e.printStackTrace();
+                }
+            } catch (SQLException e){
+                e.printStackTrace();
+            }
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    void addIncome(int income){
+        try (Connection con = DriverManager.getConnection(url)) {
+            try (Statement statement = con.createStatement()) {
+                int balance = 0;
+
+                try (ResultSet card = statement.executeQuery("SELECT * FROM card")) {
+                    balance = card.getInt("balance");
+                } catch (SQLException e){
+                    e.printStackTrace();
+                }
+
+                statement.executeUpdate("UPDATE card SET balance = " + (balance + income));
+            } catch (SQLException e){
+                e.printStackTrace();
+            }
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+    }
+
+    boolean doTransfer(int transfer){
+        try (Connection con = DriverManager.getConnection(url)) {
+            try (Statement statement = con.createStatement()) {
+                int balance = 0;
+
+                try (ResultSet card = statement.executeQuery("Select * FROM card")) {
+                    balance = card.getInt("balance");
+                } catch (SQLException e){
+                    e.printStackTrace();
+                }
+
+                if(transfer > balance)
+                    return false;
+
+            } catch (SQLException e){
+                e.printStackTrace();
+            }
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+        return true;
+    }
+
+    void deleteAccount(){
+        try (Connection con = DriverManager.getConnection(url)) {
+            try (Statement statement = con.createStatement()) {
+                statement.executeUpdate("DELETE FROM card WHERE id = 1");
+            } catch (SQLException e){
+                e.printStackTrace();
+            }
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+    }
+}
