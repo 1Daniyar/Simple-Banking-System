@@ -1,0 +1,58 @@
+package banking;
+
+import java.util.Random;
+
+public class Card {
+    long cardNumber;
+    int pin;
+    int balance = 0;
+
+    Card(){
+        cardNumber = generateCartNumber();
+        pin = generatePin();
+    }
+
+    long generateCartNumber(){
+        Random random = new Random();
+        StringBuilder sb = new StringBuilder();
+        int bin = 400000;
+        sb.append(bin);
+        for(int i = 0; i < 9; i++)
+            sb.append(random.nextInt(10));
+        sb.append(checkSum(sb));
+
+        return Long.parseLong(sb.toString());
+    }
+
+    int checkSum(StringBuilder sb){
+        int[] array = new int[15];
+        int sum = 0;
+        for(int i = 0; i < array.length; i++){
+            array[i] = Integer.parseInt(String.valueOf(sb.charAt(i)));
+        }
+
+        for (int i = 0; i < array.length; i++){
+            if((i + 1) % 2 != 0)
+                array[i] *= 2;
+        }
+
+        for (int i = 0; i < array.length; i++){
+            if(array[i] > 9)
+                array[i] -= 9;
+        }
+
+        for (int i = 0; i < array.length; i++){
+            sum += array[i];
+        }
+
+        return sum % 10 == 0 ? 0 : 10 - sum % 10;
+    }
+
+    int generatePin(){
+        Random random = new Random();
+        StringBuilder sb = new StringBuilder();
+        for(int i = 0; i < 4; i++)
+            sb.append(random.nextInt(9) + 1);
+        return Integer.parseInt(sb.toString());
+    }
+}
