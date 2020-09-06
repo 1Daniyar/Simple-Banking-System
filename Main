@@ -1,0 +1,86 @@
+package banking;
+
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        String menu = "1. Create an account\n" +
+                "2. Log into account\n" +
+                "0. Exit\n";
+
+        String subMenu = "1. Balance\n" +
+                "2. Add income\n" +
+                "3. Do transfer\n" +
+                "4. Close account\n" +
+                "5. Log out\n" +
+                "0. Exit\n";
+
+        Card card = null;
+        CardDB db = new CardDB(args[1]);
+        int operation = -1;
+
+        while (0 != operation){
+            System.out.println(menu);
+            operation = scanner.nextInt();
+            switch (operation){
+                case 1:
+                    card = new Card();
+                    db.insetNewCard(String.valueOf(card.cardNumber), String.valueOf(card.pin));
+                    System.out.println("\nYour card has been created");
+                    System.out.println("Your card number:");
+                    System.out.println(db.printData("number"));
+                    System.out.println("Your card PIN:");
+                    System.out.println(db.printData("pin"));
+                    break;
+                case 2:
+                    System.out.println("Enter your card number:");
+                    long cardNumber = scanner.nextLong();
+                    System.out.println("Enter your PIN:");
+                    int pin = scanner.nextInt();
+
+                    if(card != null
+                            && cardNumber == Long.parseLong(db.printData("number"))
+                            && pin == Integer.parseInt(db.printData("pin"))){
+                        System.out.println("\nYou have successfully logged in!\n");
+                        boolean on = true;
+                        while (on) {
+                            System.out.println(subMenu);
+                            operation = scanner.nextInt();
+                            switch (operation) {
+                                case 1:
+                                    System.out.println(db.printData("balance"));
+                                    break;
+                                case 2:
+                                    System.out.println("Enter income:");
+                                    db.addIncome(scanner.nextInt());
+                                    System.out.println("Income was added!");
+                                case 3:
+                                    System.out.println("Transfer\n" +
+                                            "Enter card number:");
+                                    break;
+                                case 4:
+                                    db.deleteAccount();
+                                    break;
+                                case 5:
+                                    System.out.println("\nYou have successfully logged out!\n");
+                                    on = false;
+                                    break;
+                                case 0:
+                                    System.out.println("Bye!");
+                                    on = false;
+                                    break;
+                            }
+                        }
+                    } else{
+                        System.out.println("Wrong card number or PIN!");
+                    }
+                    break;
+                case 0:
+                    System.out.println("Bye!");
+                    break;
+            }
+        }
+    }
+}
